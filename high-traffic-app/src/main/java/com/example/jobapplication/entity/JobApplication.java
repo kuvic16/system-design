@@ -3,18 +3,13 @@ package com.example.jobapplication.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Entity class representing a job application
  */
 @Entity
 @Table(name = "job_applications")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class JobApplication {
 
     @Id
@@ -30,12 +25,37 @@ public class JobApplication {
     @Column(nullable = false)
     private String email;
 
-    @NotBlank(message = "Job ID is required")
+    @NotNull(message = "Job ID is required")
     @Column(nullable = false)
     private Long jobId;
 
     @NotBlank(message = "Resume URL is required")
     @Column(nullable = false)
     private String resumeUrl;
-}
 
+    // No-arg constructor (required by JPA)
+    public JobApplication() {}
+
+    // All-args constructor
+    public JobApplication(Long id, String name, String email, Long jobId, String resumeUrl) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.jobId = jobId;
+        this.resumeUrl = resumeUrl;
+    }
+
+    // Getters
+    public Long getId() { return id; }
+    public String getName() { return name; }
+    public String getEmail() { return email; }
+    public Long getJobId() { return jobId; }
+    public String getResumeUrl() { return resumeUrl; }
+
+    // Setters
+    public void setId(Long id) { this.id = id; }
+    public void setName(String name) { this.name = name; }
+    public void setEmail(String email) { this.email = email; }
+    public void setJobId(Long jobId) { this.jobId = jobId; }
+    public void setResumeUrl(String resumeUrl) { this.resumeUrl = resumeUrl; }
+}

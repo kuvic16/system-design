@@ -28,7 +28,7 @@ public class JobApplicationController {
     @PostMapping
     public ResponseEntity<JobApplication> createJobApplication(@Valid @RequestBody JobApplication jobApplication) {
         JobApplication created = service.createJobApplication(jobApplication);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(created);
     }
 
     /**

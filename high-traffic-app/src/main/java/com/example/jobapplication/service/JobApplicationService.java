@@ -1,6 +1,7 @@
 package com.example.jobapplication.service;
 
 import com.example.jobapplication.entity.JobApplication;
+import com.example.jobapplication.messaging.JobApplicationEventProducer;
 import com.example.jobapplication.repository.JobApplicationRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +15,19 @@ import java.util.Optional;
 public class JobApplicationService {
 
     private final JobApplicationRepository repository;
+    private final JobApplicationEventProducer eventProducer;
 
-    public JobApplicationService(JobApplicationRepository repository) {
+    public JobApplicationService(JobApplicationRepository repository, JobApplicationEventProducer eventProducer) {
         this.repository = repository;
+        this.eventProducer = eventProducer;
     }
 
     /**
      * Create a new job application
      */
     public JobApplication createJobApplication(JobApplication jobApplication) {
-        return repository.save(jobApplication);
+        eventProducer.publishCreatedEvent(jobApplication);
+        return jobApplication;
     }
 
     /**

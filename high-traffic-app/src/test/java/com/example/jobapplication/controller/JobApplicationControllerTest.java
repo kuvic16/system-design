@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -18,9 +21,16 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -54,7 +64,7 @@ class JobApplicationControllerTest {
         mockMvc.perform(post("/api/job-applications")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(testJobApplication)))
-                .andExpect(status().isCreated())
+                .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("John Doe"))
                 .andExpect(jsonPath("$.email").value("john@example.com"));
@@ -63,16 +73,20 @@ class JobApplicationControllerTest {
     }
 
     @Test
-    void testGetAllJobApplications() throws Exception {
+    void testGetAllJobApplicationsWithPagination() throws Exception {
         List<JobApplication> applications = Arrays.asList(testJobApplication);
-        when(service.getAllJobApplications()).thenReturn(applications);
+        Page<JobApplication> pagedApplications = new PageImpl<>(applications, PageRequest.of(0, 50), 1);
+        when(service.getAllJobApplications(0, 50)).thenReturn(pagedApplications);
 
         mockMvc.perform(get("/api/job-applications")
+                .param("page", "0")
+                .param("size", "50")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("John Doe"));
+                .andExpect(jsonPath("$.content[0].name").value("John Doe"))
+                .andExpect(jsonPath("$.size").value(50));
 
-        verify(service, times(1)).getAllJobApplications();
+        verify(service, times(1)).getAllJobApplications(0, 50);
     }
 
     @Test
@@ -112,4 +126,3 @@ class JobApplicationControllerTest {
         verify(service, times(1)).deleteJobApplication(1L);
     }
 }
-

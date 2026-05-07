@@ -3,11 +3,10 @@ package com.example.jobapplication.controller;
 import com.example.jobapplication.entity.JobApplication;
 import com.example.jobapplication.service.JobApplicationService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * REST Controller for Job Application API
@@ -32,11 +31,13 @@ public class JobApplicationController {
     }
 
     /**
-     * GET - Retrieve all job applications
+     * GET - Retrieve job applications with pagination
      */
     @GetMapping
-    public ResponseEntity<List<JobApplication>> getAllJobApplications() {
-        List<JobApplication> applications = service.getAllJobApplications();
+    public ResponseEntity<Page<JobApplication>> getAllJobApplications(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+        Page<JobApplication> applications = service.getAllJobApplications(page, size);
         return ResponseEntity.ok(applications);
     }
 
@@ -78,4 +79,3 @@ public class JobApplicationController {
         }
     }
 }
-

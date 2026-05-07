@@ -3,9 +3,11 @@ package com.example.jobapplication.service;
 import com.example.jobapplication.entity.JobApplication;
 import com.example.jobapplication.messaging.JobApplicationEventProducer;
 import com.example.jobapplication.repository.JobApplicationRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -13,6 +15,8 @@ import java.util.Optional;
  */
 @Service
 public class JobApplicationService {
+
+    private static final int MAX_PAGE_SIZE = 50;
 
     private final JobApplicationRepository repository;
     private final JobApplicationEventProducer eventProducer;
@@ -33,8 +37,11 @@ public class JobApplicationService {
     /**
      * Get all job applications
      */
-    public List<JobApplication> getAllJobApplications() {
-        return repository.findAll();
+    public Page<JobApplication> getAllJobApplications(int page, int size) {
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+        Pageable pageable = PageRequest.of(safePage, safeSize);
+        return repository.findAll(pageable);
     }
 
     /**
@@ -67,4 +74,3 @@ public class JobApplicationService {
         repository.deleteById(id);
     }
 }
-

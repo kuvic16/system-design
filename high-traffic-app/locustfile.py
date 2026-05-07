@@ -1,5 +1,6 @@
 import random
 import string
+import time
 from typing import List
 
 from locust import HttpUser, between, task
@@ -23,7 +24,7 @@ class JobApplicationUser(HttpUser):
             "resumeUrl": f"https://example.com/resumes/{suffix}.pdf",
         }
 
-    @task(3)
+    @task(1)
     def create_application(self) -> None:
         payload = self._build_payload()
         with self.client.post(
@@ -37,7 +38,7 @@ class JobApplicationUser(HttpUser):
             else:
                 response.failure(f"Expected 200/201/202, got {response.status_code}")
 
-    @task(5)
+    @task(2)
     def get_all_applications(self) -> None:
         # Pull a page and store IDs into application_ids for use by other tasks.
         with self.client.get(
@@ -63,7 +64,7 @@ class JobApplicationUser(HttpUser):
             except Exception as ex:
                 response.failure(f"Failed to parse response: {ex}")
 
-    @task(4)
+    @task(3)
     def get_application_by_id(self) -> None:
         if not self.application_ids:
             return
@@ -74,7 +75,7 @@ class JobApplicationUser(HttpUser):
             name="GET /api/job-applications/{id}",
         )
 
-    @task(2)
+    @task(4)
     def update_application(self) -> None:
         if not self.application_ids:
             return
@@ -87,7 +88,7 @@ class JobApplicationUser(HttpUser):
             name="PUT /api/job-applications/{id}",
         )
 
-    @task(1)
+    @task(5)
     def delete_application(self) -> None:
         if not self.application_ids:
             return

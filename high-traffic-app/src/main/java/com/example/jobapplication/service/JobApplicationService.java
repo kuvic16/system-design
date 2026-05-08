@@ -3,6 +3,7 @@ package com.example.jobapplication.service;
 import com.example.jobapplication.entity.JobApplication;
 import com.example.jobapplication.messaging.JobApplicationEventProducer;
 import com.example.jobapplication.repository.JobApplicationRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +38,9 @@ public class JobApplicationService {
     /**
      * Get all job applications
      */
+    @Cacheable(value = "applications", key = "#page + '-' + #size")
     public Page<JobApplication> getAllJobApplications(int page, int size) {
+        System.out.println("Fetching from DB...");
         int safePage = Math.max(page, 0);
         int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
         Pageable pageable = PageRequest.of(safePage, safeSize);

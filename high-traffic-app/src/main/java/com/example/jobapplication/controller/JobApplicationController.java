@@ -1,6 +1,7 @@
 package com.example.jobapplication.controller;
 
 import com.example.jobapplication.entity.JobApplication;
+import com.example.jobapplication.ratelimit.RateLimited;
 import com.example.jobapplication.service.JobApplicationService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/job-applications")
+@RateLimited(bucket = "job-applications:other", limitProperty = "app.rate-limit.other-requests")
 public class JobApplicationController {
 
     private final JobApplicationService service;
@@ -34,6 +36,7 @@ public class JobApplicationController {
      * GET - Retrieve job applications with pagination
      */
     @GetMapping
+    @RateLimited(bucket = "job-applications:list", limitProperty = "app.rate-limit.get-all-requests")
     public ResponseEntity<Page<JobApplication>> getAllJobApplications(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {

@@ -1,0 +1,4 @@
+Design system architectures that integrate LLM APIs, RAG pipelines, and agentic AI components
+Kubernetes
+CI/CD
+Sonarcube

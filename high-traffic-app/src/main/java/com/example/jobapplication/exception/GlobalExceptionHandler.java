@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -17,6 +18,27 @@ import java.util.Map;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * Handle rate limit exceeded exceptions
+     */
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleRateLimitExceededException(
+            RateLimitExceededException ex,
+            HttpServletResponse httpServletResponse) {
+
+        httpServletResponse.setHeader("Retry-After", String.valueOf(ex.getRetryAfterSeconds()));
+        httpServletResponse.setHeader("X-RateLimit-Limit", String.valueOf(ex.getLimit()));
+        httpServletResponse.setHeader("X-RateLimit-Remaining", String.valueOf(ex.getRemaining()));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.TOO_MANY_REQUESTS.value());
+        response.put("message", ex.getMessage());
+        response.put("retryAfterSeconds", ex.getRetryAfterSeconds());
+
+        return new ResponseEntity<>(response, HttpStatus.TOO_MANY_REQUESTS);
+    }
 
     /**
      * Handle validation errors

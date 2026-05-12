@@ -24,7 +24,7 @@ class JobApplicationUser(HttpUser):
             "resumeUrl": f"https://example.com/resumes/{suffix}.pdf",
         }
 
-    @task(1)
+    # @task(1)
     def create_application(self) -> None:
         payload = self._build_payload()
         with self.client.post(
@@ -60,27 +60,32 @@ class JobApplicationUser(HttpUser):
                     item["id"] for item in content if "id" in item
                 ]
 
+                print(f"[Locust] Stored application IDs: {self.application_ids}")
+
+
                 response.success()
             except Exception as ex:
                 response.failure(f"Failed to parse response: {ex}")
 
-    @task(3)
+    # @task(3)
     def get_application_by_id(self) -> None:
         if not self.application_ids:
             return
 
         app_id = random.choice(self.application_ids)
+        print(f"[Locust] GET application ID: {app_id}")
         self.client.get(
             f"/api/job-applications/{app_id}",
             name="GET /api/job-applications/{id}",
         )
 
-    @task(4)
+    # @task(4)
     def update_application(self) -> None:
         if not self.application_ids:
             return
 
         app_id = random.choice(self.application_ids)
+        print(f"[Locust] PUT application ID: {app_id}")
         payload = self._build_payload()
         self.client.put(
             f"/api/job-applications/{app_id}",
@@ -88,12 +93,13 @@ class JobApplicationUser(HttpUser):
             name="PUT /api/job-applications/{id}",
         )
 
-    @task(5)
+    # @task(5)
     def delete_application(self) -> None:
         if not self.application_ids:
             return
 
         app_id = random.choice(self.application_ids)
+        print(f"[Locust] DELETE application ID: {app_id}")
         with self.client.delete(
             f"/api/job-applications/{app_id}",
             name="DELETE /api/job-applications/{id}",

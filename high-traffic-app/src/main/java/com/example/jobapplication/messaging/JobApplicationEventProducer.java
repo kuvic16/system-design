@@ -30,8 +30,8 @@ public class JobApplicationEventProducer {
 
     public void publishCreatedEvent(JobApplication jobApplication) {
         JobApplicationCreatedEvent event = new JobApplicationCreatedEvent(
-                jobApplication.getName(), "",
-                //jobApplication.getEmail(),
+                jobApplication.getName(),
+                jobApplication.getEmail(),
                 jobApplication.getJobId(),
                 jobApplication.getResumeUrl()
         );

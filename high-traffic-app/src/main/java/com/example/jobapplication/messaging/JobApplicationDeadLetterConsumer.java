@@ -20,7 +20,7 @@ public class JobApplicationDeadLetterConsumer {
      *
      * @param event the dead-lettered event
      */
-    @RabbitListener(queues = "${app.rabbitmq.dlq}")
+    @RabbitListener(queues = "${app.rabbitmq.dlq}", concurrency = "5")
     public void handleDeadLetterEvent(JobApplicationCreatedEvent event) {
         logger.error("DEAD LETTERED MESSAGE - Job application event failed permanently and was moved to DLQ. "
                 + "name={}, email={}, jobId={}, resumeUrl={}", 

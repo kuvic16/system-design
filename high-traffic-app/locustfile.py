@@ -24,7 +24,7 @@ class JobApplicationUser(HttpUser):
             "resumeUrl": f"https://example.com/resumes/{suffix}.pdf",
         }
 
-    # @task(1)
+    @task(1)
     def create_application(self) -> None:
         payload = self._build_payload()
         with self.client.post(
@@ -38,7 +38,7 @@ class JobApplicationUser(HttpUser):
             else:
                 response.failure(f"Expected 200/201/202, got {response.status_code}")
 
-    @task(2)
+    # @task(2)
     def get_all_applications(self) -> None:
         # Pull a page and store IDs into application_ids for use by other tasks.
         with self.client.get(

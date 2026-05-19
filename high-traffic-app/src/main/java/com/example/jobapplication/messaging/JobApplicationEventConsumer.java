@@ -22,7 +22,7 @@ public class JobApplicationEventConsumer {
         this.repository = repository;
     }
 
-    @RabbitListener(queues = "${app.rabbitmq.queue}")
+    @RabbitListener(queues = "${app.rabbitmq.queue}", concurrency = "5")
     public void consumeCreatedEvent(JobApplicationCreatedEvent event) {
         try {
             // Validate event data

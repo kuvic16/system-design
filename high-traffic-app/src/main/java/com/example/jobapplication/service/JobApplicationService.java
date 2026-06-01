@@ -3,6 +3,7 @@ package com.example.jobapplication.service;
 import com.example.jobapplication.entity.JobApplication;
 import com.example.jobapplication.messaging.JobApplicationEventProducer;
 import com.example.jobapplication.repository.JobApplicationRepository;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +31,7 @@ public class JobApplicationService {
     /**
      * Create a new job application
      */
+    @CacheEvict(value = "applications", allEntries = true)
     public JobApplication createJobApplication(JobApplication jobApplication) {
         eventProducer.publishCreatedEvent(jobApplication);
         return jobApplication;
@@ -57,6 +59,7 @@ public class JobApplicationService {
     /**
      * Update an existing job application
      */
+    @CacheEvict(value = "applications", allEntries = true)
     public JobApplication updateJobApplication(Long id, JobApplication jobApplication) {
         return repository.findById(id).map(existing -> {
             existing.setName(jobApplication.getName());
@@ -70,6 +73,7 @@ public class JobApplicationService {
     /**
      * Delete a job application
      */
+    @CacheEvict(value = "applications", allEntries = true)
     public void deleteJobApplication(Long id) {
         if (!repository.existsById(id)) {
             throw new RuntimeException("Job Application not found with id: " + id);

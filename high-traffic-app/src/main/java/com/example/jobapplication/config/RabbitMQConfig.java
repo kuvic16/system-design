@@ -36,6 +36,15 @@ public class RabbitMQConfig {
     @Value("${app.rabbitmq.dlq-routing-key}")
     private String dlqRoutingKey;
 
+    @Value("${app.rabbitmq.retry-queue}")
+    private String retryQueueName;
+
+    @Value("${app.rabbitmq.retry-routing-key}")
+    private String retryRoutingKey;
+
+    @Value("${app.rabbitmq.retry-delay-ms:10000}")
+    private long retryDelayMs;
+
     /**
      * Main queue with dead-letter exchange configuration.
      * Messages rejected without requeue go to the DLX.
@@ -58,6 +67,26 @@ public class RabbitMQConfig {
     @Bean
     public Binding jobApplicationBinding(Queue jobApplicationQueue, TopicExchange jobApplicationExchange) {
         return BindingBuilder.bind(jobApplicationQueue).to(jobApplicationExchange).with(routingKey);
+    }
+
+    /**
+     * Retry queue for delayed reprocessing; messages published with retry routing key
+     * wait for retryDelayMs, then return to the main queue.
+     */
+    @Bean
+    public Queue jobApplicationRetryQueue() {
+        return new Queue(retryQueueName, true, false, false,
+                java.util.Map.of(
+                    "x-message-ttl", retryDelayMs,
+                    "x-dead-letter-exchange", exchangeName,
+                    "x-dead-letter-routing-key", routingKey
+                )
+        );
+    }
+
+    @Bean
+    public Binding jobApplicationRetryBinding(Queue jobApplicationRetryQueue, TopicExchange jobApplicationExchange) {
+        return BindingBuilder.bind(jobApplicationRetryQueue).to(jobApplicationExchange).with(retryRoutingKey);
     }
 
     /**

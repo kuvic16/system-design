@@ -24,7 +24,7 @@ class JobApplicationUser(HttpUser):
             "resumeUrl": f"https://example.com/resumes/{suffix}.pdf",
         }
 
-    @task(1)
+    @task(3)
     def create_application(self) -> None:
         payload = self._build_payload()
         with self.client.post(
@@ -38,7 +38,7 @@ class JobApplicationUser(HttpUser):
             else:
                 response.failure(f"Expected 200/201/202, got {response.status_code}")
 
-    # @task(2)
+    @task(5)
     def get_all_applications(self) -> None:
         # Pull a page and store IDs into application_ids for use by other tasks.
         with self.client.get(
@@ -67,11 +67,12 @@ class JobApplicationUser(HttpUser):
             except Exception as ex:
                 response.failure(f"Failed to parse response: {ex}")
 
-    # @task(3)
+    @task(4)
     def get_application_by_id(self) -> None:
         if not self.application_ids:
             return
 
+        time.sleep(0.1)
         app_id = random.choice(self.application_ids)
         print(f"[Locust] GET application ID: {app_id}")
         self.client.get(
@@ -79,11 +80,12 @@ class JobApplicationUser(HttpUser):
             name="GET /api/job-applications/{id}",
         )
 
-    # @task(4)
+    @task(2)
     def update_application(self) -> None:
         if not self.application_ids:
             return
 
+        time.sleep(0.1)
         app_id = random.choice(self.application_ids)
         print(f"[Locust] PUT application ID: {app_id}")
         payload = self._build_payload()
@@ -93,7 +95,7 @@ class JobApplicationUser(HttpUser):
             name="PUT /api/job-applications/{id}",
         )
 
-    # @task(5)
+    @task(1)
     def delete_application(self) -> None:
         if not self.application_ids:
             return

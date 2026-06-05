@@ -41,6 +41,18 @@ services:
       redis:
         condition: service_started
 
+  locust:
+    image: locustio/locust
+    container_name: locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./locustfile.py:/mnt/locust/locustfile.py:ro
+    command: -f /mnt/locust/locustfile.py --host=http://app:8080 --web-port 8089
+    depends_on:
+      app:
+        condition: service_started
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus

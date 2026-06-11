@@ -2,6 +2,7 @@ package com.example.jobapplication.messaging;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -21,9 +22,11 @@ public class JobApplicationDeadLetterConsumer {
      * @param event the dead-lettered event
      */
     @RabbitListener(queues = "${app.rabbitmq.dlq}", concurrency = "5")
-    public void handleDeadLetterEvent(JobApplicationCreatedEvent event) {
+    public void handleDeadLetterEvent(JobApplicationCreatedEvent event, Message message) {
+        Object retryCount = message.getMessageProperties().getHeaders().getOrDefault("x-retry-count", 0);
         logger.error("DEAD LETTERED MESSAGE - Job application event failed permanently and was moved to DLQ. "
-                + "name={}, email={}, jobId={}, resumeUrl={}", 
+                + "retryCount={}, name={}, email={}, jobId={}, resumeUrl={}",
+                retryCount,
                 event.getName(), 
                 event.getEmail(), 
                 event.getJobId(), 

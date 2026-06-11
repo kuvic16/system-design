@@ -45,10 +45,10 @@ services:
     image: locustio/locust
     container_name: locust
     ports:
-      - "8089:8089"
+      - "8090:8090"
     volumes:
       - ./locustfile.py:/mnt/locust/locustfile.py:ro
-    command: -f /mnt/locust/locustfile.py --host=http://app:8080 --web-port 8089
+    command: -f /mnt/locust/locustfile.py --host=http://app:8080 --web-port 8090
     depends_on:
       app:
         condition: service_started
